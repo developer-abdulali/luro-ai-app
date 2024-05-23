@@ -7,17 +7,11 @@ import cloudinary from "../config/cloudinary";
 import createHttpError from "http-errors";
 
 const CreateBook = async (req: Request, res: Response, next: NextFunction) => {
-  const { title, genre } = req.body;
+  const { title, genre, description } = req.body;
   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
   // Check if cover image and book file are present
-  if (
-    !files ||
-    !files.coverImage ||
-    !files.coverImage[0] ||
-    !files.file ||
-    !files.file[0]
-  ) {
+  if (!files.coverImage || !files.file) {
     return next(
       createHttpError(400, "Cover image and book file are required.")
     );
@@ -48,21 +42,19 @@ const CreateBook = async (req: Request, res: Response, next: NextFunction) => {
       bookFileName
     );
 
-    const bookFileUploadResult = await cloudinary.uploader.upload(
-      bookFilePath,
-      {
-        resource_type: "raw",
-        filename_override: bookFileName,
-        folder: "book-pdfs",
-        format: "pdf",
-      }
-    );
+    let bookFileUploadResult = await cloudinary.uploader.upload(bookFilePath, {
+      resource_type: "raw",
+      filename_override: bookFileName,
+      folder: "book-pdfs",
+      format: "pdf",
+    });
 
     const _req = req as IAuthRequest;
 
     const newBook = await bookModel.create({
       title,
       genre,
+      description,
       author: _req.userId,
       coverImage: uploadResult.secure_url,
       file: bookFileUploadResult.secure_url,
@@ -84,72 +76,8 @@ const CreateBook = async (req: Request, res: Response, next: NextFunction) => {
     return next(createHttpError(500, "Error while uploading the files."));
   }
 };
-
-// const CreateBook = async (req: Request, res: Response, next: NextFunction) => {
-//   const { title, genre } = req.body;
-//   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-
-//   const coverImageMimeType = files.coverImage[0].mimetype.split("/").at(-1);
-//   const fileName = files.coverImage[0].filename;
-//   const filePath = path.resolve(
-//     __dirname,
-//     "../../public/data/uploads",
-//     fileName
-//   );
-
-//   try {
-//     const uploadResult = await cloudinary.uploader.upload(filePath, {
-//       filename_override: fileName,
-//       folder: "book-covers",
-//       format: coverImageMimeType,
-//     });
-
-//     const bookFileName = files.file[0].filename;
-//     const bookFilePath = path.resolve(
-//       __dirname,
-//       "../../public/data/uploads",
-//       bookFileName
-//     );
-
-//     const bookFileUploadResult = await cloudinary.uploader.upload(
-//       bookFilePath,
-//       {
-//         resource_type: "raw",
-//         filename_override: bookFileName,
-//         folder: "book-pdfs",
-//         format: "pdf",
-//       }
-//     );
-
-//     const _req = req as IAuthRequest;
-
-//     const newBook = await bookModel.create({
-//       title,
-//       genre,
-//       author: _req.userId,
-//       coverImage: uploadResult.secure_url,
-//       file: bookFileUploadResult.secure_url,
-//     });
-
-//     // Delete temporary files
-//     try {
-//       await fs.promises.unlink(filePath);
-//       await fs.promises.unlink(bookFilePath);
-//     } catch (unlinkErr) {
-//       console.error("Error deleting temporary files:", unlinkErr);
-//     }
-
-//     res
-//       .status(201)
-//       .json({ id: newBook._id, message: "Book is created successfully" });
-//   } catch (err) {
-//     console.error(err);
-//     return next(createHttpError(500, "Error while uploading the files."));
-//   }
-// };
-
 const UpdateBook = async (req: Request, res: Response, next: NextFunction) => {
-  const { title, genre } = req.body;
+  const { title, genre, description } = req.body;
   const bookId = req.params.bookId;
 
   try {
@@ -210,6 +138,7 @@ const UpdateBook = async (req: Request, res: Response, next: NextFunction) => {
       {
         title: title || book.title,
         genre: genre || book.genre,
+        description: description || book.description,
         coverImage: completeCoverImage,
         file: completeFileName,
       },
@@ -226,6 +155,7 @@ const UpdateBook = async (req: Request, res: Response, next: NextFunction) => {
     return next(createHttpError(500, "Error while updating the book."));
   }
 };
+
 const ListBooks = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // todo: add pagination.

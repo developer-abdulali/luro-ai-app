@@ -5,6 +5,7 @@ export interface IBooks {
   title: string;
   author: IUser;
   genre: string;
+  description: string;
   coverImage: string;
   file: string;
   createdAt: Date;
