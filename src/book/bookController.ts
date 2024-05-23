@@ -179,14 +179,15 @@ const GetSingleBook = async (
   try {
     const book = await bookModel
       .findOne({ _id: bookId })
-      // populate author field
-      .populate("author", "name");
+      .populate("author", "name"); // Populate the author field with only the name field
+
     if (!book) {
       return next(createHttpError(404, "Book not found."));
     }
 
     return res.json(book);
   } catch (err) {
+    console.error(err);
     return next(createHttpError(500, "Error while getting a book"));
   }
 };
