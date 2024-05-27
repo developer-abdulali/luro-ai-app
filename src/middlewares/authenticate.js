@@ -1,0 +1,26 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const http_errors_1 = __importDefault(require("http-errors"));
+const jsonwebtoken_1 = require("jsonwebtoken");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const authenticate = (req, res, next) => {
+    const token = req.header("Authorization");
+    if (!token) {
+        return next((0, http_errors_1.default)(401, "Authentication token is required"));
+    }
+    try {
+        const parsedToken = token.split(" ")[1];
+        const decoded = (0, jsonwebtoken_1.verify)(parsedToken, process.env.JWT_SECRET);
+        const _req = req;
+        _req.userId = decoded.sub;
+        next();
+    }
+    catch (err) {
+        return next((0, http_errors_1.default)(401, "Token expired"));
+    }
+};
+exports.default = authenticate;
