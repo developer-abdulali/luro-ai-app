@@ -86,30 +86,4 @@ const LoginUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-// // login user fuction
-// const LoginUser = async (req: Request, res: Response, next: NextFunction) => {
-//   const { email, password } = req.body;
-//   // validate
-//   if (!email || !password) {
-//     return next(createHttpError(400, "All fields are required"));
-//   }
-//   const user = await userModel.findOne({ email });
-//   if (!user) {
-//     return next(createHttpError(404, "User not found"));
-//   }
-//   // comparing the password
-//   const isMatch = await bcrypt.compare(password, user?.password);
-//   if (!isMatch) {
-//     return next(createHttpError(400, "Email or password incorrect!"));
-//   }
-//   // creating new jwt token for user
-//   const token = sign({ sub: user._id }, process.env.JWT_SECRET!, {
-//     expiresIn: "7d",
-//   });
-
-//   res
-//     .status(201)
-//     .json({ accessToken: token, message: "User logged in successfully" });
-// };
-
 export { RegisterUser, LoginUser };
