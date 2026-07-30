@@ -21,7 +21,7 @@ const Container = ({ children, className, delay, reverse, simple }: Props) => {
         delay: delay,
         duration: simple ? 0.2 : 0.4,
         type: simple ? "keyframes" : "spring",
-        stiffness: simple && 100,
+        stiffness: simple ? 100 : undefined,
       }}
       className={cn("w-full h-full", className)}
     >

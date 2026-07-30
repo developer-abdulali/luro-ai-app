@@ -1,6 +1,5 @@
-import React from 'react'
-import Container from '../global/container'
-import Link from 'next/link'
+import Link from 'next/link';
+import Container from '../global/container';
 
 import { HelpCircleIcon, Zap } from 'lucide-react';
 import { Button } from '../ui/button';
