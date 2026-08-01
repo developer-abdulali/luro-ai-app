@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Container from '../global/container';
 
-import { HelpCircleIcon, Zap } from 'lucide-react';
+import { HelpCircleIcon, ShipWheel, Zap } from 'lucide-react';
 import { Button } from '../ui/button';
 
 
@@ -12,6 +12,7 @@ const DashboardNavbar = () => {
         <div className="flex items-center">
           <Link href='/app' className='flex items-center gap-x-2'>
             {/* <Icons.icon className='w-6' /> */}
+            <ShipWheel className='w-auto h-5' />
             <span className='text-lg font-semibold'>Luro</span>
           </Link>
         </div>
