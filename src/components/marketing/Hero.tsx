@@ -7,7 +7,7 @@ import Image from "next/image";
 
 const Hero = () => {
   return (
-    <div className="flex flex-col items-center text-center w-full max-w-5xl my-16 md:my-20 mx-auto z-40 relative">
+    <div id="how-it-works" className="flex flex-col items-center text-center w-full max-w-5xl my-16 md:my-20 mx-auto z-40 relative">
       <Container>
         <div className="inline-flex items-center gap-2.5 px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60 backdrop-blur-md cursor-pointer hover:border-neutral-700 transition-all select-none w-max mx-auto">
           <div className="relative flex items-center justify-center">
