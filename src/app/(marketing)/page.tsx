@@ -5,7 +5,7 @@ import Companies from "@/components/marketing/companies";
 import Connect from "@/components/marketing/connect";
 import CTA from "@/components/marketing/cta";
 import Features from "@/components/marketing/features";
-import Hero from "@/components/marketing/hero";
+import Hero from "@/components/marketing/Hero";
 import Perks from "@/components/marketing/perks";
 import Pricing from "@/components/marketing/pricing";
 import Reviews from "@/components/marketing/reviews";
