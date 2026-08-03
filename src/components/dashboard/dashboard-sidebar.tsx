@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/functions/cn";
+import { cn } from "@/lib/utils";
 import { useClerk } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import { Button, buttonVariants } from "../ui/button";
@@ -18,7 +18,7 @@ const DashboardSidebar = () => {
   return (
     <div
       id="sidebar"
-      className="hidden lg:flex flex-col fixed top-16 left-0 bottom-0 z-50 bg-background border-r border-border/50 w-72"
+      className="hidden lg:flex flex-col fixed top-16 left-0 bottom-0 z-50 bg-[#09090b] border-r border-neutral-800/80 w-72"
     >
       <div className={cn("flex flex-col size-full p-3")}>
         <Container delay={0.2} className="h-max">
@@ -50,7 +50,10 @@ const DashboardSidebar = () => {
                         : "text-foreground/70 w-full !justify-start",
                     })}
                   >
-                    <link.icon strokeWidth={2} className="size-[18px] mr1.5" />
+                    <link.icon
+                      strokeWidth={2}
+                      className="mr-2 size-[18px] mr1.5"
+                    />
                     {link.label}
                   </Link>
                 </Container>

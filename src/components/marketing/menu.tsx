@@ -11,7 +11,7 @@ import {
     NavigationMenuTrigger,
     navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { cn } from "@/functions/cn";
+import { cn } from "@/lib/utils";
 import {
     Calendar,
     Hash,

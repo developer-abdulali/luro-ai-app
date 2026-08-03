@@ -6,6 +6,7 @@ import SectionBadge from "../ui/section-badge";
 import MagicCard from "../ui/magic-card";
 import { Sparkles, Zap, ShipWheel } from "lucide-react";
 import Ripple from "../ui/ripple";
+import Image from "next/image";
 
 const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -154,8 +155,14 @@ const Features = () => {
                   </p>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <button className="px-3.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium flex items-center gap-2 border border-purple-400/40 shadow-[0_0_15px_rgba(147,51,234,0.6)]">
-                      <ShipWheel className="w-3.5 h-3.5 text-white" /> Make it
-                      better
+                      <Image
+                        src="/images/logo-removebg.png"
+                        alt="Luro"
+                        width={28}
+                        height={28}
+                        className="w-6 h-6 object-contain invert"
+                      />
+                      Make it better
                     </button>
                   </div>
                 </div>
@@ -168,7 +175,13 @@ const Features = () => {
               >
                 <div className="relative w-full h-full flex items-center justify-center min-h-[220px] overflow-hidden">
                   <div className="w-16 h-16 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center relative z-20 shadow-2xl">
-                    <ShipWheel className="w-8 h-8 text-white" />
+                    <Image
+                      src="/images/logo-removebg.png"
+                      alt="Luro"
+                      width={28}
+                      height={28}
+                      className="w-8 h-8 object-contain invert"
+                    />
                   </div>
                   <Ripple
                     mainCircleSize={64}
@@ -204,7 +217,13 @@ const Features = () => {
                     <div className="flex-1 h-[2px] bg-gradient-to-r from-neutral-700 via-purple-500 to-purple-500 mx-2"></div>
 
                     <div className="w-12 h-12 rounded-xl bg-purple-600 border border-purple-400/50 flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.8)] shrink-0">
-                      <ShipWheel className="w-6 h-6 text-white" />
+                      <Image
+                        src="/images/logo-removebg.png"
+                        alt="Luro"
+                        width={28}
+                        height={28}
+                        className="w-7 h-7 object-contain invert"
+                      />
                     </div>
 
                     <div className="flex-1 h-[2px] bg-gradient-to-r from-purple-500 via-purple-500 to-neutral-700 mx-2"></div>

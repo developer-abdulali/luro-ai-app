@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { cn } from "@/functions/cn";
+import { cn } from "@/lib/utils";
 
 interface BlurIntProps {
   words: React.ReactNode | string;

@@ -8,7 +8,7 @@ type Link = {
 
 export const SIDEBAR_LINKS: Link[] = [
     {
-        href: "/dashboard",
+        href: "/app",
         label: "Dashboard",
         icon: ChartPieIcon,
     },

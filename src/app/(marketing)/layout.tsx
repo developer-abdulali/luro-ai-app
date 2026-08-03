@@ -6,14 +6,13 @@ interface Props {
     children: React.ReactNode
 }
 
-const MarketingLayout = ({ children }: Props) => {
+const MarketingLayout = ({children} : Props) => {
     return (
         <div id="home" className="min-h-screen bg-black text-white relative overflow-x-hidden">
-            <Navbar />
+            <Navbar/>
             <main className="mx-auto w-full z-40 relative">
-                {children}
-            </main>
-            <Footer />
+                {children} </main>
+            <Footer/>
         </div>
     )
 }

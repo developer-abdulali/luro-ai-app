@@ -1,21 +1,23 @@
 "use client";
 
-import { FADE_IN_VARIANTS } from "@/contants/animation";
-import { useSignIn } from "@clerk/nextjs/legacy";
-import { OAuthStrategy } from "@clerk/types";
-import { motion } from "framer-motion";
-import {
-  ArrowLeftIcon,
-  Mail,
-} from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+import { useSignUp } from "@clerk/nextjs/legacy";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { FADE_IN_VARIANTS } from "@/contants/animation";
+import { OAuthStrategy } from "@clerk/types";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  ArrowLeftIcon,
+  Eye,
+  EyeOff,
+  Mail,
+} from "lucide-react";
 import LoadingIcon from "../ui/loading-icon";
+import { Input } from "../ui/input";
 
 const GoogleIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -65,17 +67,20 @@ const OutlookIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const SignInForm = () => {
+const SignUpForm = () => {
   const router = useRouter();
   const params = useSearchParams();
 
   const from = params.get("from");
 
-  const { isLoaded, signIn, setActive } = useSignIn();
+  const { isLoaded, signUp, setActive } = useSignUp();
 
   const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [code, setCode] = useState<string>("");
-  const [isEmailOpen, setIsEmailOpen] = useState<boolean>(true);
+
+  const [isOptionsOpen, setIsOptionsOpen] = useState<boolean>(true);
   const [isCodeSent, setIsCodeSent] = useState<boolean>(false);
   const [isEmailLoading, setIsEmailLoading] = useState<boolean>(false);
   const [isCodeLoading, setIsCodeLoading] = useState<boolean>(false);
@@ -90,67 +95,81 @@ const SignInForm = () => {
     }
 
     try {
-      await signIn?.authenticateWithRedirect({
+      if (!signUp) return;
+      await signUp.authenticateWithRedirect({
         strategy,
         redirectUrl: "/auth/sso-callback",
         redirectUrlComplete: "/app",
       });
 
       toast.loading(
-        `Redirecting to ${strategy === "oauth_google" ? "Google" : "Apple"}...`,
+        `Redirecting to ${strategy === "oauth_google" ? "Google" : "Apple"}...`
       );
     } catch (error) {
       console.error(error);
-      toast.error("An error occurred. Please try again.");
+      toast.error("An error occurred during authentication.");
     } finally {
       setIsGoogleLoading(false);
       setIsAppleLoading(false);
     }
   };
 
-  const handleEmailSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleEmailSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!isLoaded || !signIn) return;
+    if (!isLoaded || !signUp) return;
 
     if (!email) {
       toast.error("Please enter your email address.");
       return;
     }
 
+    if (!password) {
+      toast.error("Please enter a password.");
+      return;
+    }
+
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters long.");
+      return;
+    }
+
     setIsEmailLoading(true);
 
     try {
-      await signIn.create({ identifier: email });
+      await signUp.create({
+        emailAddress: email,
+        password: password,
+      });
 
-      const emailFactor = signIn.supportedFirstFactors?.find(
-        (factor: any) => factor.strategy === "email_code",
-      ) as any;
-
-      if (emailFactor) {
-        await signIn.prepareFirstFactor({
-          strategy: "email_code",
-          emailAddressId: emailFactor.emailAddressId,
-        });
-      }
+      await signUp.prepareEmailAddressVerification({
+        strategy: "email_code",
+      });
 
       setIsCodeSent(true);
+      toast.success("Verification code sent to your email.");
     } catch (error: any) {
       console.error(JSON.stringify(error, null, 2));
       const firstErr = error?.errors?.[0];
       switch (firstErr?.code) {
-        case "form_identifier_not_found":
-          toast.error("Email address not found. Please sign up first.");
-          router.push("/auth/signup?from=signin");
+        case "form_identifier_exists":
+          toast.error("An account with this email already exists. Please sign in.");
+          router.push("/auth/signin?from=signup");
+          break;
+        case "form_password_length_too_short":
+          toast.error("Password is too short. Must be at least 8 characters.");
+          break;
+        case "form_password_pwned":
+          toast.error("Password is too common. Please choose a stronger password.");
           break;
         case "too_many_attempts":
           toast.error("Too many attempts. Please try again later.");
           break;
-        case "form_factor_invalid":
+        case "form_param_format_invalid":
           toast.error("Invalid email address. Please try again.");
           break;
         default:
-          toast.error("An error occurred. Please try again.");
+          toast.error(firstErr?.message || "An error occurred. Please try again.");
       }
     } finally {
       setIsEmailLoading(false);
@@ -160,7 +179,7 @@ const SignInForm = () => {
   const handleVerifyCode = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!isLoaded || !signIn) return;
+    if (!isLoaded || !signUp) return;
 
     if (!code) {
       toast.error("Please enter the verification code.");
@@ -170,19 +189,31 @@ const SignInForm = () => {
     setIsCodeLoading(true);
 
     try {
-      const signInAttempt = await signIn.attemptFirstFactor({
-        strategy: "email_code",
+      let completeSignUp = await signUp.attemptEmailAddressVerification({
         code,
       });
 
-      if (signInAttempt.status === "complete") {
-        if (setActive) {
-          await setActive({ session: signInAttempt.createdSessionId });
+      if (completeSignUp.status === "missing_requirements") {
+        if (completeSignUp.missingFields?.includes("password")) {
+          if (password) {
+            completeSignUp = await signUp.update({ password });
+          } else {
+            toast.error("Password is required to complete registration.");
+            setIsCodeLoading(false);
+            return;
+          }
         }
-        router.push("/auth/callback");
+      }
+
+      if (completeSignUp.status === "complete") {
+        if (setActive) {
+          await setActive({ session: completeSignUp.createdSessionId });
+        }
+        toast.success("Account created successfully!");
+        router.push("/app");
       } else {
-        console.error(JSON.stringify(signInAttempt, null, 2));
-        toast.error("Invalid verification code. Please try again.");
+        console.error(JSON.stringify(completeSignUp, null, 2));
+        toast.error("Please complete all required fields.");
       }
     } catch (error: any) {
       console.error(JSON.stringify(error, null, 2));
@@ -198,7 +229,7 @@ const SignInForm = () => {
           toast.error("Verification failed. Please try again.");
           break;
         default:
-          toast.error("An error occurred. Please try again.");
+          toast.error(firstErr?.message || "An error occurred. Please try again.");
       }
     } finally {
       setIsCodeLoading(false);
@@ -206,7 +237,7 @@ const SignInForm = () => {
   };
 
   useEffect(() => {
-    if (from) setIsEmailOpen(true);
+    if (from) setIsOptionsOpen(true);
   }, [from]);
 
   return (
@@ -216,6 +247,7 @@ const SignInForm = () => {
         id="clerk-captcha"
         className="w-full flex justify-center items-center empty:hidden my-3 overflow-hidden rounded-xl bg-neutral-900/80 border border-neutral-800/80 p-2 transition-all shadow-lg [&_iframe]:invert-[0.92] [&_iframe]:hue-rotate-180 [&_iframe]:contrast-[1.1] [&_iframe]:rounded-xl [&_iframe]:bg-transparent"
       />
+
       <motion.div
         variants={FADE_IN_VARIANTS}
         initial="hidden"
@@ -236,20 +268,20 @@ const SignInForm = () => {
         <h1 className="mt-4 text-2xl text-center font-semibold">
           {isCodeSent
             ? "Verify your email"
-            : isEmailOpen
-              ? "Welcome to Luro"
-              : "Sign in with Email"}
+            : isOptionsOpen
+              ? "Create your Luro account"
+              : "Sign up with Email"}
         </h1>
         <p className="text-sm mt-2 text-muted-foreground">
           {isCodeSent
-            ? "Enter the verification code sent to your email"
-            : isEmailOpen
-              ? "Choose a method to sign in"
-              : "Enter your email address to get started"}
+            ? "Enter the 6-digit code sent to " + email
+            : isOptionsOpen
+              ? "Choose a method to get started"
+              : "Enter your email and password to create an account"}
         </p>
       </motion.div>
 
-      {isEmailOpen ? (
+      {isOptionsOpen ? (
         <motion.div
           variants={FADE_IN_VARIANTS}
           initial="hidden"
@@ -262,7 +294,7 @@ const SignInForm = () => {
             variant="outline"
             disabled={isGoogleLoading || isAppleLoading || isEmailLoading}
             onClick={() => handleOAuth("oauth_google")}
-            className="w-full relative justify-center"
+            className="w-full relative justify-center border-neutral-800 bg-neutral-900/60 hover:bg-neutral-800 text-white"
           >
             {isGoogleLoading ? (
               <LoadingIcon className="w-4 h-4 absolute left-4" />
@@ -278,7 +310,7 @@ const SignInForm = () => {
             variant="outline"
             disabled={isGoogleLoading || isAppleLoading || isEmailLoading}
             onClick={() => handleOAuth("oauth_apple")}
-            className="w-full relative justify-center"
+            className="w-full relative justify-center border-neutral-800 bg-neutral-900/60 hover:bg-neutral-800 text-white"
           >
             {isAppleLoading ? (
               <LoadingIcon className="w-4 h-4 absolute left-4" />
@@ -293,20 +325,20 @@ const SignInForm = () => {
             type="button"
             variant="outline"
             disabled={isGoogleLoading || isAppleLoading || isEmailLoading}
-            onClick={() => setIsEmailOpen(false)}
-            className="w-full relative justify-center"
+            onClick={() => setIsOptionsOpen(false)}
+            className="w-full relative justify-center border-neutral-800 bg-neutral-900/60 hover:bg-neutral-800 text-white"
           >
             <Mail className="w-4 h-4 absolute left-4 text-muted-foreground" />
             Continue with Email
           </Button>
 
           <div className="text-center pt-2 text-xs text-muted-foreground">
-            Don&apos;t have an account?{" "}
+            Already have an account?{" "}
             <Link
-              href="/auth/signup"
-              className="text-white hover:underline font-medium"
+              href="/auth/signin"
+              className="text-purple-400 hover:underline font-medium"
             >
-              Sign up
+              Sign in
             </Link>
           </div>
         </motion.div>
@@ -329,19 +361,19 @@ const SignInForm = () => {
                   maxLength={6}
                   disabled={isCodeLoading}
                   onChange={(e) => setCode(e.target.value)}
-                  placeholder="Enter verification code"
-                  className="w-full text-center tracking-widest text-lg"
+                  placeholder="Verification Code"
+                  className="w-full text-center tracking-widest text-lg bg-neutral-950/80 border-neutral-800"
                 />
               </div>
               <Button
                 type="submit"
                 disabled={isCodeLoading}
-                className="w-full"
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium"
               >
                 {isCodeLoading ? (
                   <LoadingIcon size="sm" className="mr-2" />
                 ) : (
-                  "Verify Code"
+                  "Verify & Create Account"
                 )}
               </Button>
               <div className="w-full flex items-center gap-2 pt-2">
@@ -350,7 +382,7 @@ const SignInForm = () => {
                   type="button"
                   variant="outline"
                   disabled={isCodeLoading}
-                  className="w-full gap-2 border-neutral-800 bg-neutral-900/60 hover:bg-neutral-800 text-white"
+                  className="w-full border-neutral-800 bg-neutral-900/60 hover:bg-neutral-800 text-white gap-2"
                 >
                   <Link href="https://mail.google.com" target="_blank">
                     <GmailIcon className="w-4 h-4" />
@@ -362,7 +394,7 @@ const SignInForm = () => {
                   type="button"
                   variant="outline"
                   disabled={isCodeLoading}
-                  className="w-full gap-2 border-neutral-800 bg-neutral-900/60 hover:bg-neutral-800 text-white"
+                  className="w-full border-neutral-800 bg-neutral-900/60 hover:bg-neutral-800 text-white gap-2"
                 >
                   <Link href="https://outlook.live.com" target="_blank">
                     <OutlookIcon className="w-4 h-4" />
@@ -375,10 +407,10 @@ const SignInForm = () => {
                 variant="ghost"
                 onClick={() => setIsCodeSent(false)}
                 disabled={isCodeLoading}
-                className="w-full mt-2"
+                className="w-full mt-2 text-muted-foreground hover:text-white"
               >
                 <ArrowLeftIcon className="mr-2 w-3.5 h-3.5" />
-                Change Email
+                Change Email / Password
               </Button>
             </motion.form>
           ) : (
@@ -386,42 +418,76 @@ const SignInForm = () => {
               variants={FADE_IN_VARIANTS}
               initial="hidden"
               animate="visible"
-              onSubmit={handleEmailSignIn}
+              onSubmit={handleEmailSignUp}
               className="py-6 w-full flex flex-col gap-4"
             >
-              <div className="w-full">
-                <Input
-                  autoFocus={true}
-                  name="email"
-                  type="email"
-                  value={email}
-                  disabled={isEmailLoading}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
-                  className="w-full"
-                />
+              <div className="w-full space-y-3">
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block text-left">
+                    Email address
+                  </label>
+                  <Input
+                    autoFocus={true}
+                    name="email"
+                    type="email"
+                    value={email}
+                    disabled={isEmailLoading}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    className="w-full bg-neutral-950/80 border-neutral-800"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block text-left">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Input
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      disabled={isEmailLoading}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="At least 8 characters"
+                      className="w-full bg-neutral-950/80 border-neutral-800 pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div className="w-full flex flex-col gap-2">
+
+              <div className="w-full flex flex-col gap-2 pt-2">
                 <Button
                   type="submit"
                   disabled={isEmailLoading}
-                  className="w-full"
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium"
                 >
                   {isEmailLoading ? (
                     <LoadingIcon size="sm" className="mr-2" />
                   ) : (
-                    "Continue with Email"
+                    "Create Account"
                   )}
                 </Button>
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={() => setIsEmailOpen(true)}
+                  onClick={() => setIsOptionsOpen(true)}
                   disabled={isEmailLoading}
-                  className="w-full"
+                  className="w-full text-muted-foreground hover:text-white"
                 >
                   <ArrowLeftIcon className="mr-2 w-3.5 h-3.5" />
-                  All Sign In Options
+                  All Sign Up Options
                 </Button>
               </div>
             </motion.form>
@@ -432,5 +498,4 @@ const SignInForm = () => {
   );
 };
 
-export default SignInForm;
-
+export default SignUpForm;

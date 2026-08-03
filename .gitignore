@@ -42,3 +42,11 @@ next-env.d.ts
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# ai agent / editor config
+/.claude/
+/.windsurf/
+/.agents/
+/skills-lock.json
+
+/src/generated/prisma

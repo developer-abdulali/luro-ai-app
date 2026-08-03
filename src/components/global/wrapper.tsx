@@ -1,4 +1,4 @@
-import { cn } from "@/functions/cn";
+import { cn } from "@/lib/utils";
 
 interface Props {
     className?: string;

@@ -2,8 +2,8 @@ import React from "react";
 import Container from "../global/container";
 import { FOOTER_LINKS } from "@/contants/links";
 import Link from "next/link";
-import { ShipWheel } from "lucide-react";
 import { Button } from "../ui/button";
+import Image from "next/image";
 
 const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -54,12 +54,17 @@ const Footer = () => {
         <div className="flex flex-col lg:flex-row justify-between gap-12 lg:gap-8 pb-12">
           {/* Left Brand Column */}
           <div className="flex flex-col items-start max-w-sm">
-            <Link href="/" className="flex items-center gap-2">
-              <ShipWheel className="w-6 h-6 text-white" />
-              <span className="text-xl font-bold text-white tracking-tight">
-                Luro
-              </span>
+            <Link href="/" className="flex items-center gap-x-2">
+              <Image
+                src="/images/logo.png"
+                alt="Luro"
+                width={28}
+                height={28}
+                className="w-7 h-7 object-contain"
+              />
+              <span className="text-base font-semibold text-white">Luro</span>
             </Link>
+
             <p className="text-sm text-neutral-400 mt-4 leading-relaxed">
               Empower your business <br />
               with our AI tools.
