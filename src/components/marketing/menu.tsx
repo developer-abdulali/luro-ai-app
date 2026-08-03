@@ -9,17 +9,17 @@ import {
     NavigationMenuLink,
     NavigationMenuList,
     NavigationMenuTrigger,
-    navigationMenuTriggerStyle,
+    navigationMenuTriggerStyle
 } from "@/components/ui/navigation-menu";
-import { cn } from "@/lib/utils";
+import {cn} from "@/lib/utils";
 import {
     Calendar,
     Hash,
     Users,
     FileText,
-    HelpCircle,
-    ShipWheel,
+    HelpCircle
 } from "lucide-react";
+import Image from "next/image";
 
 export interface ItemProps {
     title: string;
@@ -28,24 +28,23 @@ export interface ItemProps {
     icon?: React.ReactNode;
 }
 
-export const Item = ({ title, href, children, icon }: ItemProps) => {
+export const Item = ({title, href, children, icon} : ItemProps) => {
     return (
         <li>
             <NavigationMenuLink asChild>
-                <Link
-                    href={href}
-                    className="flex items-start gap-x-3 select-none rounded-xl p-2.5 leading-none no-underline outline-none transition-colors hover:bg-neutral-900/90 hover:text-white focus:bg-neutral-900 text-neutral-300"
-                >
-                    {icon && (
+                <Link href={href}
+                    className="flex items-start gap-x-3 select-none rounded-xl p-2.5 leading-none no-underline outline-none transition-colors hover:bg-neutral-900/90 hover:text-white focus:bg-neutral-900 text-neutral-300">
+                    {
+                    icon && (
                         <div className="flex items-center justify-center border border-neutral-800 rounded-lg shrink-0 w-9 h-9 text-white bg-neutral-900/80 shadow-xs">
-                            {icon}
-                        </div>
-                    )}
+                            {icon} </div>
+                    )
+                }
                     <div>
-                        <div className="text-sm font-semibold leading-none text-white">{title}</div>
+                        <div className="text-sm font-semibold leading-none text-white">
+                            {title}</div>
                         <p className="line-clamp-2 text-xs leading-snug text-neutral-400 mt-1.5 font-normal">
-                            {children}
-                        </p>
+                            {children} </p>
                     </div>
                 </Link>
             </NavigationMenuLink>
@@ -59,13 +58,10 @@ const Menu = () => {
             <NavigationMenuList className="gap-x-1">
                 {/* How it works */}
                 <NavigationMenuItem>
-                    <NavigationMenuLink
-                        href="#how-it-works"
-                        className={cn(
-                            navigationMenuTriggerStyle(),
-                            "h-10 px-4 py-2 text-sm font-normal rounded-md text-neutral-300 hover:text-white w-max hover:bg-transparent"
-                        )}
-                    >
+                    <NavigationMenuLink href="#how-it-works"
+                        className={
+                            cn(navigationMenuTriggerStyle(), "h-10 px-4 py-2 text-sm font-normal rounded-md text-neutral-300 hover:text-white w-max hover:bg-transparent")
+                    }>
                         How it works
                     </NavigationMenuLink>
                 </NavigationMenuItem>
@@ -79,7 +75,10 @@ const Menu = () => {
                         <div className="grid w-[560px] grid-cols-2 gap-3 p-3 bg-[#0b0b10] rounded-2xl">
                             {/* Left Promo Card */}
                             <div className="flex flex-col justify-end p-5 rounded-xl bg-[#18181f] border border-neutral-800/80 relative overflow-hidden select-none">
-                                <ShipWheel className="w-7 h-7 text-white mb-4" />
+                                <Image src="/images/logo-removebg.png" alt="Luro"
+                                    width={28}
+                                    height={28}
+                                    className="w-7 h-7 object-contain invert"/>
                                 <div className="text-base font-semibold text-white">
                                     Luro AI
                                 </div>
@@ -90,25 +89,25 @@ const Menu = () => {
 
                             {/* Right Feature List */}
                             <ul className="flex flex-col gap-y-1">
-                                <Item
-                                    title="Content Calendar"
-                                    href="#features"
-                                    icon={<Calendar className="w-4 h-4" />}
-                                >
+                                <Item title="Content Calendar" href="#features"
+                                    icon={
+                                        <Calendar
+                                    className="w-4 h-4"/>
+                                }>
                                     Plan and visualize your content strategy.
                                 </Item>
-                                <Item
-                                    title="Hashtag Manager"
-                                    href="#features"
-                                    icon={<Hash className="w-4 h-4" />}
-                                >
+                                <Item title="Hashtag Manager" href="#features"
+                                    icon={
+                                        <Hash
+                                    className="w-4 h-4"/>
+                                }>
                                     Research and track trending hashtags.
                                 </Item>
-                                <Item
-                                    title="Competitor Analysis"
-                                    href="#features"
-                                    icon={<Users className="w-4 h-4" />}
-                                >
+                                <Item title="Competitor Analysis" href="#features"
+                                    icon={
+                                        <Users
+                                    className="w-4 h-4"/>
+                                }>
                                     Monitor and analyze competitor performance.
                                 </Item>
                             </ul>
@@ -118,26 +117,20 @@ const Menu = () => {
 
                 {/* Pricing */}
                 <NavigationMenuItem>
-                    <NavigationMenuLink
-                        href="#pricing"
-                        className={cn(
-                            navigationMenuTriggerStyle(),
-                            "h-10 px-4 py-2 text-sm font-normal rounded-md text-neutral-300 hover:text-white w-max hover:bg-transparent"
-                        )}
-                    >
+                    <NavigationMenuLink href="#pricing"
+                        className={
+                            cn(navigationMenuTriggerStyle(), "h-10 px-4 py-2 text-sm font-normal rounded-md text-neutral-300 hover:text-white w-max hover:bg-transparent")
+                    }>
                         Pricing
                     </NavigationMenuLink>
                 </NavigationMenuItem>
 
                 {/* Integration */}
                 <NavigationMenuItem>
-                    <NavigationMenuLink
-                        href="#integration"
-                        className={cn(
-                            navigationMenuTriggerStyle(),
-                            "h-10 px-4 py-2 text-sm font-normal rounded-md text-neutral-300 hover:text-white w-max hover:bg-transparent"
-                        )}
-                    >
+                    <NavigationMenuLink href="#integration"
+                        className={
+                            cn(navigationMenuTriggerStyle(), "h-10 px-4 py-2 text-sm font-normal rounded-md text-neutral-300 hover:text-white w-max hover:bg-transparent")
+                    }>
                         Integration
                     </NavigationMenuLink>
                 </NavigationMenuItem>
@@ -149,18 +142,18 @@ const Menu = () => {
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
                         <ul className="grid w-[460px] grid-cols-2 gap-2 p-3">
-                            <Item
-                                title="Blog"
-                                href="#blog"
-                                icon={<FileText className="w-4 h-4" />}
-                            >
+                            <Item title="Blog" href="#blog"
+                                icon={
+                                    <FileText
+                                className="w-4 h-4"/>
+                            }>
                                 Read our latest articles and updates.
                             </Item>
-                            <Item
-                                title="Support"
-                                href="#support"
-                                icon={<HelpCircle className="w-4 h-4" />}
-                            >
+                            <Item title="Support" href="#support"
+                                icon={
+                                    <HelpCircle
+                                className="w-4 h-4"/>
+                            }>
                                 Get help with any issues you may have.
                             </Item>
                         </ul>

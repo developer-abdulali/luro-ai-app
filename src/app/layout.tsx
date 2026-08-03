@@ -5,6 +5,7 @@ import { inter, satoshi } from "@/contants/fonts";
 import Providers from "../components/global/providers";
 import "./globals.css";
 import { Toaster } from "@/components/global/toaster";
+import ScrollToTop from "@/components/global/scroll-to-top";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -25,7 +26,10 @@ export default function RootLayout({
       >
         <Toaster richColors theme="dark" position="top-right" />
 
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <ScrollToTop />
+        </Providers>
       </body>
     </html>
   );
