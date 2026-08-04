@@ -30,6 +30,7 @@ const MarketingPage = () => {
                     <Hero/>
 
                     <Container className="py-8 lg:py-20">
+                         {/* Companies */}
                         <Companies/>
                     </Container>
                     <Connect/>
